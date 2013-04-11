@@ -1,3 +1,15 @@
+
+###############################################################################
+# Include a CMake module without searching the CMAKE_MODULE_PATH.
+# This is to workaround a bug where VTK injects a different version
+# of CheckCXXSourceRuns.cmake into the CMAKE_MODULE_PATH.
+macro(safe_include module_name)
+  set(_module_path_backup ${CMAKE_MODULE_PATH})
+  set(CMAKE_MODULE_PATH)
+  include(${module_name})
+  set(CMAKE_MODULE_PATH ${_module_path_backup})
+endmacro()
+
 ###############################################################################
 # Check for the presence of SSE and figure out the flags to use for it.
 macro(PCL_CHECK_FOR_SSE)
@@ -27,7 +39,7 @@ macro(PCL_CHECK_FOR_SSE)
     # precision). One solution would be to use "-ffloat-store" on 32bit (see 
     # http://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html), but that slows code down,
     # so the preferred solution is to try "-mpfmath=sse" first.
-    include(CheckCXXSourceRuns)
+    safe_include(CheckCXXSourceRuns)
     set(CMAKE_REQUIRED_FLAGS)
 
     check_cxx_source_runs("
@@ -190,7 +202,7 @@ endmacro(PCL_CHECK_FOR_SSE)
 ###############################################################################
 # Check for the presence of SSE 4.1
 macro(PCL_CHECK_FOR_SSE4_1)
-  include(CheckCXXSourceRuns)
+  safe_include(CheckCXXSourceRuns)
   set(CMAKE_REQUIRED_FLAGS)
 
   if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
@@ -216,7 +228,7 @@ endmacro(PCL_CHECK_FOR_SSE4_1)
 ###############################################################################
 # Check for the presence of SSE 3
 macro(PCL_CHECK_FOR_SSE3)
-  include(CheckCXXSourceRuns)
+  safe_include(CheckCXXSourceRuns)
   set(CMAKE_REQUIRED_FLAGS)
 
   if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
